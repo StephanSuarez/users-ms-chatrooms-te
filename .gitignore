@@ -1,0 +1,28 @@
+# Archivos temporales
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+
+# Archivos de compilación
+*.o
+*.out
+*.exe
+
+# Directorios generados
+_pycache_/
+node_modules/
+
+# Archivos de configuración
+*.log
+*.conf
+*.env
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Dependencias y entornos virtuales
+venv/
+env/
