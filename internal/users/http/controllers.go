@@ -28,6 +28,13 @@ func AddUser(ctx *gin.Context) {
 		return
 	}
 
+	if err := services.CreateUser(userDto.MapEntityFromDto()); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"body": userDto,
 	})
