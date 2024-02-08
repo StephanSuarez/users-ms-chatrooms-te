@@ -6,5 +6,7 @@ import (
 
 func Routes(r *gin.Engine) {
 	r.GET("/welcome", GetUsers)
+	r.POST("/users", AddUser)
+
 	r.Run()
 }

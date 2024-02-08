@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"users/internal/users/http/dtos"
 	"users/internal/users/services"
 
 	"github.com/gin-gonic/gin"
@@ -14,4 +15,16 @@ func GetUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg": quehay,
 	})
+}
+
+func AddUser(ctx *gin.Context) {
+
+	userDto := dtos.UsersRequestDTO{}
+
+	if err := ctx.ShouldBind(&userDto); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Bad body",
+		})
+		return
+	}
 }
