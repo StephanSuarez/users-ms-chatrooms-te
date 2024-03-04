@@ -10,11 +10,12 @@ import (
 )
 
 type DbEnv struct {
-	Server   string
-	Username string
-	Password string
-	Cluster  string
-	Dbname   string
+	DbEnviroment string
+	Server       string
+	Username     string
+	Password     string
+	Cluster      string
+	Dbname       string
 }
 
 var dbInstance *mongo.Database
@@ -22,7 +23,13 @@ var lock = &sync.Mutex{}
 
 func mongoConnection(dbEnv *DbEnv) {
 
-	mongoURI := fmt.Sprintf("%s://%s:%s@%s/", dbEnv.Server, dbEnv.Username, dbEnv.Password, dbEnv.Cluster)
+	var mongoURI string
+
+	if dbEnv.DbEnviroment == "localhost" {
+		mongoURI = "mongodb://localhost:27017" // Corregido el puerto a 27017
+	} else {
+		mongoURI = fmt.Sprintf("%s://%s:%s@%s/", dbEnv.Server, dbEnv.Username, dbEnv.Password, dbEnv.Cluster)
+	}
 
 	opts := options.Client().ApplyURI(mongoURI)
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"users/internal/common/config"
 	"users/internal/users/http"
 
@@ -21,12 +22,15 @@ func main() {
 	app.env = config.NewEnv()
 
 	dbenv := &config.DbEnv{
-		Server:   app.env.MongoServer,
-		Username: app.env.MongoUsername,
-		Password: app.env.MongoPassword,
-		Cluster:  app.env.MongoCluster,
-		Dbname:   app.env.DbName,
+		DbEnviroment: app.env.DbEnviroment,
+		Server:       app.env.MongoServer,
+		Username:     app.env.MongoUsername,
+		Password:     app.env.MongoPassword,
+		Cluster:      app.env.MongoCluster,
+		Dbname:       app.env.DbName,
 	}
+	fmt.Print("------")
+	fmt.Print(dbenv)
 
 	app.dbConn = config.GetDBInstance(dbenv)
 

@@ -13,12 +13,13 @@ type Env struct {
 	MongoPassword string
 	MongoCluster  string
 	DbName        string
+	DbEnviroment  string
 }
 
 func NewEnv() *Env {
 	env := Env{}
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
 
@@ -27,6 +28,7 @@ func NewEnv() *Env {
 	env.MongoPassword = os.Getenv("MONGO_PASSWORD")
 	env.MongoCluster = os.Getenv("MONGO_CLUSTER")
 	env.DbName = os.Getenv("DB_NAME")
+	env.DbEnviroment = os.Getenv("DB_ENVIROMENT")
 
 	return &env
 }

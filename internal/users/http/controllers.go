@@ -8,14 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetUsers(ctx *gin.Context) {
-
-	quehay := services.Hola_services()
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"msg": quehay,
-	})
-}
 
 func AddUser(ctx *gin.Context) {
 
