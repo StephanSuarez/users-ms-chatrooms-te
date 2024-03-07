@@ -1,6 +1,7 @@
 package dtos
 
 import (
+	"errors"
 	"users/internal/users/entity"
 )
 
@@ -22,4 +23,20 @@ func (urd *UsersRequestDTO) MapEntityFromDto() *entity.Users {
 		Email:    urd.Email,
 		Password: urd.Password,
 	}
+}
+
+func (urd *UsersRequestDTO) ValidateString() error {
+	if urd.UserName == "" {
+		return errors.New("the field 'userName' can not be empty")
+	}
+
+	if urd.Email == "" {
+		return errors.New("the field 'email' can not be empty")
+	}
+
+	if urd.Password == "" {
+		return errors.New("the field 'password' can not be empty")
+	}
+
+	return nil
 }

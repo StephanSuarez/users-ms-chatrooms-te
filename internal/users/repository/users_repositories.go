@@ -1,17 +1,134 @@
 package repository
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"users/internal/users/entity"
 	"users/internal/users/repository/models"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Hola() string {
-	return "Hola"
+type userRepository struct {
+	dbInstance *mongo.Database
 }
 
-func InsertOne(userEntity *entity.Users) error {
+var collection *mongo.Collection
+
+type UserRepository interface {
+	InsertOne(userEntity *entity.Users) error
+	FindAll() ([]entity.Users, error)
+	FindOne(id string) (*entity.Users, error)
+	UpdateOne(id string, userEntity *entity.Users) (*entity.Users, error)
+	DeleteOne(id string) (bool, error)
+}
+
+func NewUserRepository(dbInstance *mongo.Database) UserRepository {
+	collection = dbInstance.Collection("users")
+	return &userRepository{
+		dbInstance: dbInstance,
+	}
+}
+
+func (ur *userRepository) InsertOne(userEntity *entity.Users) error {
 	userModel := models.Users{}
 	userModel.MapEntityToModel(userEntity)
-	
+
+	ctx := context.TODO()
+	_, err := collection.InsertOne(ctx, userModel)
+	if err != nil {
+		panic(err)
+	}
+
 	return nil
+}
+
+func (ur *userRepository) FindAll() ([]entity.Users, error) {
+	users := []models.UsersR{}
+
+	ctx := context.TODO()
+	cursor, err := collection.Find(ctx, bson.D{})
+	if err != nil {
+		panic(err)
+	}
+
+	defer cursor.Close(ctx)
+
+	err = cursor.All(ctx, &users)
+	if err != nil {
+		return nil, err
+	}
+
+	usersEntity := []entity.Users{}
+	for i := 0; i < len(users); i++ {
+		userentity := users[i].MapEntityFromModel()
+		usersEntity = append(usersEntity, *userentity)
+	}
+
+	return usersEntity, nil
+}
+
+func (rr *userRepository) FindOne(id string) (*entity.Users, error) {
+	var user models.UsersR
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = collection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user.MapEntityFromModel(), nil
+}
+
+func (rr *userRepository) UpdateOne(id string, userEntity *entity.Users) (*entity.Users, error) {
+	user := models.Users{}
+	user.MapEntityToModel(userEntity)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	update := bson.M{
+		"$set": user,
+	}
+
+	result, err := collection.UpdateOne(context.TODO(), bson.M{"_id": objectID}, update)
+	if err != nil {
+		return nil, err
+	}
+	if result.ModifiedCount == 0 {
+		return nil, fmt.Errorf("can not update the document")
+	}
+
+	userEntity.ID = id
+
+	return userEntity, nil
+}
+
+func (rr *userRepository) DeleteOne(id string) (bool, error) {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objectId})
+	if err != nil {
+		log.Println("Error deleting document:", err)
+		return false, err
+	}
+
+	if result.DeletedCount == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }

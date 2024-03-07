@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"users/internal/common/config"
 	"users/internal/users/http"
 
@@ -10,9 +9,10 @@ import (
 )
 
 type App struct {
-	env    *config.Env
-	route  *gin.Engine
-	dbConn *mongo.Database
+	env      *config.Env
+	route    *gin.Engine
+	dbConn   *mongo.Database
+	usersDep *http.UsersDependencies
 }
 
 func main() {
@@ -29,11 +29,11 @@ func main() {
 		Cluster:      app.env.MongoCluster,
 		Dbname:       app.env.DbName,
 	}
-	fmt.Print("------")
-	fmt.Print(dbenv)
 
 	app.dbConn = config.GetDBInstance(dbenv)
 
+	app.usersDep = http.NewUsersDependencies(app.dbConn)
+
 	app.route = gin.Default()
-	http.Routes(app.route)
+	http.Routes(app.route, app.usersDep)
 }
