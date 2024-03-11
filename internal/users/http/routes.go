@@ -12,6 +12,7 @@ func Routes(r *gin.Engine, uDep *UsersDependencies) {
 	routesUsers.GET("/:id", uDep.uh.GetUserByID)
 	routesUsers.PUT("/:id", uDep.uh.UpdateUser)
 	routesUsers.DELETE("/:id", uDep.uh.DeleteUser)
+	routesUsers.GET("/74abc", uDep.uh.GetUserByUserNameOrEmail)
 
 	r.Run()
 }

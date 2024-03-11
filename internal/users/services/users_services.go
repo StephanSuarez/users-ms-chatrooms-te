@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"log"
 	"users/internal/users/entity"
 	"users/internal/users/repository"
 
@@ -18,6 +19,8 @@ type UserService interface {
 	GetUserByID(id string) (*entity.Users, error)
 	UpdateUser(id string, userEntity *entity.Users) (*entity.Users, error)
 	DeleteUser(id string) error
+	GetUserByUserName(userName string) (*entity.Users, error)
+	GetUserByEmail(email string) (*entity.Users, error)
 }
 
 func NewUserService(ur *repository.UserRepository) UserService {
@@ -85,4 +88,23 @@ func (us *userService) DeleteUser(id string) error {
 	}
 
 	return nil
+}
+
+func (us *userService) GetUserByUserName(userName string) (*entity.Users, error) {
+
+	log.Println(userName)
+	user, err := us.ur.GetUserByUserName(userName)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (us *userService) GetUserByEmail(email string) (*entity.Users, error) {
+	user, err := us.ur.GetUserByEmail(email)
+
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }

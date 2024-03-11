@@ -24,6 +24,8 @@ type UserRepository interface {
 	FindOne(id string) (*entity.Users, error)
 	UpdateOne(id string, userEntity *entity.Users) (*entity.Users, error)
 	DeleteOne(id string) (bool, error)
+	GetUserByUserName(userName string) (*entity.Users, error)
+	GetUserByEmail(email string) (*entity.Users, error)
 }
 
 func NewUserRepository(dbInstance *mongo.Database) UserRepository {
@@ -131,4 +133,27 @@ func (rr *userRepository) DeleteOne(id string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (rr *userRepository) GetUserByUserName(userName string) (*entity.Users, error) {
+	var userModel models.UsersR
+	log.Println(userName)
+
+	err := collection.FindOne(context.TODO(), bson.M{"userName": userName}).Decode(&userModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return userModel.MapEntityFromModel(), nil
+}
+
+func (rr *userRepository) GetUserByEmail(email string) (*entity.Users, error) {
+	var userModel models.UsersR
+	log.Println(email)
+	err := collection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&userModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return userModel.MapEntityFromModel(), nil
 }

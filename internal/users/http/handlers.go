@@ -2,7 +2,9 @@ package http
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"users/internal/users/entity"
 	"users/internal/users/http/dtos"
 	"users/internal/users/services"
 
@@ -19,6 +21,7 @@ type UserHandler interface {
 	GetUserByID(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
+	GetUserByUserNameOrEmail(ctx *gin.Context)
 }
 
 func NewUserHandler(us *services.UserService) UserHandler {
@@ -40,6 +43,20 @@ func (uh *userHandler) CreateUser(ctx *gin.Context) {
 	if err := userDto.ValidateString(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
+		})
+		return
+	}
+
+	if uh.userNameRegistered(userDto.UserName) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "userName already registered",
+		})
+		return
+	}
+
+	if uh.emailRegistered(userDto.Email) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "email already registered",
 		})
 		return
 	}
@@ -109,11 +126,53 @@ func (uh *userHandler) UpdateUser(ctx *gin.Context) {
 func (uh *userHandler) DeleteUser(ctx *gin.Context) {
 	id := ctx.Param("id")
 	err := uh.us.DeleteUser(id)
-	
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("user with id: %s deleted", id)})
+}
+
+func (uh *userHandler) GetUserByUserNameOrEmail(ctx *gin.Context) {
+	userName := ctx.Query("username")
+	email := ctx.Query("email")
+
+	log.Println(userName, email)
+	if userName == "" && email == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "UserName or Email is require"})
+		return
+	}
+
+	log.Println("Username:", userName)
+
+	var userEntity *entity.Users
+	var err error
+
+	if userName != "" {
+		userEntity, err = uh.us.GetUserByUserName(userName)
+	} else if email != "" {
+		userEntity, err = uh.us.GetUserByEmail(email)
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"res": nil, "error": err.Error()})
+		return
+	}
+
+	var userRDto dtos.UsersResDTO
+	userRDto.MapEntityToDto(userEntity)
+
+	ctx.JSON(http.StatusOK, userRDto)
+}
+
+func (uh *userHandler) userNameRegistered(userName string) bool {
+	user, _ := uh.us.GetUserByUserName(userName)
+	return user != nil
+}
+
+func (uh *userHandler) emailRegistered(email string) bool {
+	user, _ := uh.us.GetUserByEmail(email)
+	return user != nil
 }
