@@ -1,8 +1,8 @@
 package http
 
 import (
-	"users/internal/users/repository"
-	"users/internal/users/services"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/repository"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/services"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )

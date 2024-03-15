@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"users/internal/users/entity"
-	"users/internal/users/repository/models"
+
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/entity"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/repository/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

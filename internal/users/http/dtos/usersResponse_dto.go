@@ -1,7 +1,7 @@
 package dtos
 
 import (
-	"users/internal/users/entity"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/entity"
 )
 
 type UsersResDTO struct {

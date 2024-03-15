@@ -1,6 +1,6 @@
 package models
 
-import "users/internal/users/entity"
+import "github.com/StephanSuarez/chat-rooms-users-ms/internal/users/entity"
 
 type Users struct {
 	UserName string `bson:"userName"`

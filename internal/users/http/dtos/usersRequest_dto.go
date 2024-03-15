@@ -2,7 +2,8 @@ package dtos
 
 import (
 	"errors"
-	"users/internal/users/entity"
+
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/entity"
 )
 
 type UsersRequestDTO struct {

@@ -3,8 +3,9 @@ package services
 import (
 	"errors"
 	"log"
-	"users/internal/users/entity"
-	"users/internal/users/repository"
+
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/entity"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/repository"
 
 	"golang.org/x/crypto/bcrypt"
 )

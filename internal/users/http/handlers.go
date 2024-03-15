@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"users/internal/users/entity"
-	"users/internal/users/http/dtos"
-	"users/internal/users/services"
+
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/entity"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/http/dtos"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/services"
 
 	"github.com/gin-gonic/gin"
 )
