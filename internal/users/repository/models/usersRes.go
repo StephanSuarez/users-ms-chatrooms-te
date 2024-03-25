@@ -6,7 +6,6 @@ type UsersR struct {
 	ID       string `bson:"_id"`
 	UserName string `bson:"userName"`
 	Email    string `bson:"email"`
-	Password string `bson:"password"`
 }
 
 func (model *UsersR) MapEntityFromModel() *entity.Users {
@@ -14,6 +13,5 @@ func (model *UsersR) MapEntityFromModel() *entity.Users {
 		ID:       model.ID,
 		UserName: model.UserName,
 		Email:    model.Email,
-		Password: model.Password,
 	}
 }

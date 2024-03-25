@@ -9,13 +9,19 @@ import (
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 )
 
+var app *api.App
+
 func init() {
-	app := api.App()
-	fmt.Println(app)
+	fmt.Println("creating app")
+	app = api.NewApp()
+	// app.Start()
+	fmt.Println("app created")
+
 	functions.HTTP("UsersMS", usersMS)
 }
 
 // helloHTTP is an HTTP Cloud Function with a request parameter.
 func usersMS(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w, "Users-ms")
+	fmt.Println("CALL INTO A FUNC USERSMS")
+	// app.Router.ServeHTTP(w, r)
 }

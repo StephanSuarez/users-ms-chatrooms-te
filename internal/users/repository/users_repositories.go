@@ -20,7 +20,7 @@ type userRepository struct {
 var collection *mongo.Collection
 
 type UserRepository interface {
-	InsertOne(userEntity *entity.Users) error
+	InsertOne(userEntity *entity.Users) (string, error)
 	FindAll() ([]entity.Users, error)
 	FindOne(id string) (*entity.Users, error)
 	UpdateOne(id string, userEntity *entity.Users) (*entity.Users, error)
@@ -36,17 +36,22 @@ func NewUserRepository(dbInstance *mongo.Database) UserRepository {
 	}
 }
 
-func (ur *userRepository) InsertOne(userEntity *entity.Users) error {
+func (ur *userRepository) InsertOne(userEntity *entity.Users) (string, error) {
 	userModel := models.Users{}
 	userModel.MapEntityToModel(userEntity)
 
 	ctx := context.TODO()
-	_, err := collection.InsertOne(ctx, userModel)
+	result, err := collection.InsertOne(ctx, userModel)
 	if err != nil {
 		panic(err)
 	}
 
-	return nil
+	insertedID, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return "", fmt.Errorf("el ID insertado no es un ObjectID")
+	}
+
+	return insertedID.Hex(), nil
 }
 
 func (ur *userRepository) FindAll() ([]entity.Users, error) {

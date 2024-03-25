@@ -15,7 +15,7 @@ type userService struct {
 }
 
 type UserService interface {
-	CreateUser(userEntity *entity.Users) error
+	CreateUser(userEntity *entity.Users) (string, error)
 	GetUsers() ([]entity.Users, error)
 	GetUserByID(id string) (*entity.Users, error)
 	UpdateUser(id string, userEntity *entity.Users) (*entity.Users, error)
@@ -30,16 +30,18 @@ func NewUserService(ur *repository.UserRepository) UserService {
 	}
 }
 
-func (us *userService) CreateUser(userEntity *entity.Users) error {
+func (us *userService) CreateUser(userEntity *entity.Users) (string, error) {
 	hashPass, err := hashPassword(userEntity.Password)
 	if err != nil {
-		return err
+		return "", err
 	}
 	userEntity.Password = hashPass
-	if err = us.ur.InsertOne(userEntity); err != nil {
-		return err
+
+	userID, err := us.ur.InsertOne(userEntity)
+	if err != nil {
+		return "", err
 	}
-	return nil
+	return userID, nil
 }
 
 func hashPassword(password string) (string, error) {

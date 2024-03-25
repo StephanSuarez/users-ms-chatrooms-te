@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,7 +18,7 @@ type userHandler struct {
 }
 
 type UserHandler interface {
-	CreateUser(ctx *gin.Context)
+	CreateUser(data []byte) dtos.AnswerDTO
 	GetUsers(ctx *gin.Context)
 	GetUserByID(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
@@ -31,47 +32,52 @@ func NewUserHandler(us *services.UserService) UserHandler {
 	}
 }
 
-func (uh *userHandler) CreateUser(ctx *gin.Context) {
+func (uh *userHandler) CreateUser(data []byte) dtos.AnswerDTO {
 	userDto := dtos.UsersRequestDTO{}
+	createUserResponse := dtos.AnswerDTO{}
 
-	if err := ctx.ShouldBind(&userDto); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Bad Body",
-		})
-		return
+	if err := json.Unmarshal(data, &userDto); err != nil {
+		createUserResponse.StatusCode = 400
+		createUserResponse.Message = "Bad Data Requests"
+		return createUserResponse
 	}
 
 	if err := userDto.ValidateString(); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
+		createUserResponse.StatusCode = 400
+		createUserResponse.Message = "Can not be empty values (userName | email | password)"
+		return createUserResponse
 	}
 
 	if uh.userNameRegistered(userDto.UserName) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "userName already registered",
-		})
-		return
+		createUserResponse.StatusCode = 409
+		createUserResponse.Message = "userName already registered"
+		return createUserResponse
 	}
 
 	if uh.emailRegistered(userDto.Email) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "email already registered",
-		})
-		return
+		createUserResponse.StatusCode = 409
+		createUserResponse.Message = "email already registered"
+		return createUserResponse
 	}
 
-	if err := uh.us.CreateUser(userDto.MapEntityFromDto()); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
+	userID, err := uh.us.CreateUser(userDto.MapEntityFromDto())
+	if err != nil {
+		createUserResponse.StatusCode = 500
+		createUserResponse.Err = err
+		return createUserResponse
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"body": userDto,
-	})
+	responseDTO := dtos.CreateUsersResDTO{
+		ID:       userID,
+		UserName: userDto.UserName,
+		Email:    userDto.Email,
+	}
+
+	createUserResponse.StatusCode = 200
+	createUserResponse.Message = "user created successfully"
+	createUserResponse.Data = responseDTO
+
+	return createUserResponse
 }
 
 func (uh *userHandler) GetUsers(ctx *gin.Context) {

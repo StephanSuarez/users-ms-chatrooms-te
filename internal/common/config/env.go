@@ -14,6 +14,9 @@ type Env struct {
 	MongoCluster  string
 	DbName        string
 	DbEnviroment  string
+	ServerAddress string
+	PortServer    string
+	ProjectID     string
 }
 
 func NewEnv() *Env {
@@ -29,6 +32,9 @@ func NewEnv() *Env {
 	env.MongoCluster = os.Getenv("MONGO_CLUSTER")
 	env.DbName = os.Getenv("DB_NAME")
 	env.DbEnviroment = os.Getenv("DB_ENVIROMENT")
+	env.ServerAddress = os.Getenv("SERVER_ADDRESS")
+	env.PortServer = os.Getenv("PORT_SERVER")
+	env.ProjectID = os.Getenv("PROJECT_ID")
 
 	return &env
 }

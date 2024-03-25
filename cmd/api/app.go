@@ -1,23 +1,23 @@
 package api
 
 import (
+	// "fmt"
+
 	"github.com/StephanSuarez/chat-rooms-users-ms/internal/common/config"
 	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/http"
 
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type Application struct {
+type App struct {
 	Env      *config.Env
-	Route    *gin.Engine
 	DbConn   *mongo.Database
 	UsersDep *http.UsersDependencies
 }
 
-func App() Application {
+func NewApp() *App {
 
-	app := &Application{}
+	app := &App{}
 
 	app.Env = config.NewEnv()
 
@@ -34,7 +34,13 @@ func App() Application {
 
 	app.UsersDep = http.NewUsersDependencies(app.DbConn)
 
-	app.Route = gin.Default()
-	http.Routes(app.Route, app.UsersDep)
-	return *app
+	http.SubcribersHandlers(app.UsersDep)
+
+	return app
 }
+
+// func (app *App) Start() {
+// 	addr := fmt.Sprintf("http://localhost:%s", app.Env.ServerAddress)
+// 	log.Printf("Server is running on %s", addr)
+// 	app.Router.Run(app.Env.PortServer)
+// }

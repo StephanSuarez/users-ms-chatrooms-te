@@ -7,7 +7,7 @@ import (
 func Routes(r *gin.Engine, uDep *UsersDependencies) {
 	routesUsers := r.Group("/v1/users")
 
-	routesUsers.POST("/", uDep.uh.CreateUser)
+	// routesUsers.POST("/", uDep.uh.CreateUser)
 	routesUsers.GET("/", uDep.uh.GetUsers)
 	routesUsers.GET("/:id", uDep.uh.GetUserByID)
 	routesUsers.PUT("/:id", uDep.uh.UpdateUser)
