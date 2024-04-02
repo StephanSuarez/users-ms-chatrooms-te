@@ -38,15 +38,12 @@ func createUserSubs(w io.Writer, UsersDep *UsersDependencies) error {
 		atomic.AddInt32(&received, 1)
 
 		// CALL HANDER MS
-		answerData := UsersDep.uh.CreateUser(msg.Data)
-		if err != nil {
-			log.Println(err)
-		}
+		// answerData := UsersDep.uh.CreateUser(msg.Data)
+		// if err != nil {
+		// 	log.Println(err)
+		// }
 
-		fmt.Println(answerData)
-
-		// PUB ANSWER
-		createUserPubResponse(os.Stdout, &answerData)
+		// fmt.Println(answerData)
 
 		msg.Ack()
 	})

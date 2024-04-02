@@ -16,12 +16,12 @@ type userService struct {
 
 type UserService interface {
 	CreateUser(userEntity *entity.Users) (string, error)
-	GetUsers() ([]entity.Users, error)
-	GetUserByID(id string) (*entity.Users, error)
-	UpdateUser(id string, userEntity *entity.Users) (*entity.Users, error)
+	GetUsers() ([]entity.UsersRes, error)
+	GetUserByID(id string) (*entity.UsersRes, error)
+	UpdateUser(id string, userEntity *entity.Users) (*entity.UsersRes, error)
 	DeleteUser(id string) error
-	GetUserByUserName(userName string) (*entity.Users, error)
-	GetUserByEmail(email string) (*entity.Users, error)
+	GetUserByUserName(userName string) (*entity.UsersRes, error)
+	GetUserByEmail(email string) (*entity.UsersRes, error)
 }
 
 func NewUserService(ur *repository.UserRepository) UserService {
@@ -53,7 +53,7 @@ func hashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (us *userService) GetUsers() ([]entity.Users, error) {
+func (us *userService) GetUsers() ([]entity.UsersRes, error) {
 	users, err := us.ur.FindAll()
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (us *userService) GetUsers() ([]entity.Users, error) {
 	return users, nil
 }
 
-func (us *userService) GetUserByID(id string) (*entity.Users, error) {
+func (us *userService) GetUserByID(id string) (*entity.UsersRes, error) {
 	user, err := us.ur.FindOne(id)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,13 @@ func (us *userService) GetUserByID(id string) (*entity.Users, error) {
 	return user, nil
 }
 
-func (us *userService) UpdateUser(id string, userEntity *entity.Users) (*entity.Users, error) {
+func (us *userService) UpdateUser(id string, userEntity *entity.Users) (*entity.UsersRes, error) {
+	passwordHashed, err := hashPassword(userEntity.Password)
+	if err != nil {
+		return nil, err
+	}
+	userEntity.Password = passwordHashed
+
 	user, err := us.ur.UpdateOne(id, userEntity)
 	if err != nil {
 		return nil, err
@@ -93,7 +99,7 @@ func (us *userService) DeleteUser(id string) error {
 	return nil
 }
 
-func (us *userService) GetUserByUserName(userName string) (*entity.Users, error) {
+func (us *userService) GetUserByUserName(userName string) (*entity.UsersRes, error) {
 
 	log.Println(userName)
 	user, err := us.ur.GetUserByUserName(userName)
@@ -103,7 +109,7 @@ func (us *userService) GetUserByUserName(userName string) (*entity.Users, error)
 	return user, nil
 }
 
-func (us *userService) GetUserByEmail(email string) (*entity.Users, error) {
+func (us *userService) GetUserByEmail(email string) (*entity.UsersRes, error) {
 	user, err := us.ur.GetUserByEmail(email)
 
 	if err != nil {

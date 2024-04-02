@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/StephanSuarez/chat-rooms-users-ms/cmd/api"
+	"github.com/StephanSuarez/chat-rooms-users-ms/cmd"
 	// "log"
 	// "os"
 	// "github.com/joho/godotenv"
@@ -34,6 +34,7 @@ func main() {
 
 	// fmt.Println("fin")
 
-	app := api.NewApp()
+	app := cmd.NewApp()
 	fmt.Println(app)
+	app.Start()
 }

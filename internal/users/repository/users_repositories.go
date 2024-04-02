@@ -21,12 +21,12 @@ var collection *mongo.Collection
 
 type UserRepository interface {
 	InsertOne(userEntity *entity.Users) (string, error)
-	FindAll() ([]entity.Users, error)
-	FindOne(id string) (*entity.Users, error)
-	UpdateOne(id string, userEntity *entity.Users) (*entity.Users, error)
+	FindAll() ([]entity.UsersRes, error)
+	FindOne(id string) (*entity.UsersRes, error)
+	UpdateOne(id string, userEntity *entity.Users) (*entity.UsersRes, error)
 	DeleteOne(id string) (bool, error)
-	GetUserByUserName(userName string) (*entity.Users, error)
-	GetUserByEmail(email string) (*entity.Users, error)
+	GetUserByUserName(userName string) (*entity.UsersRes, error)
+	GetUserByEmail(email string) (*entity.UsersRes, error)
 }
 
 func NewUserRepository(dbInstance *mongo.Database) UserRepository {
@@ -54,7 +54,7 @@ func (ur *userRepository) InsertOne(userEntity *entity.Users) (string, error) {
 	return insertedID.Hex(), nil
 }
 
-func (ur *userRepository) FindAll() ([]entity.Users, error) {
+func (ur *userRepository) FindAll() ([]entity.UsersRes, error) {
 	users := []models.UsersR{}
 
 	ctx := context.TODO()
@@ -70,7 +70,7 @@ func (ur *userRepository) FindAll() ([]entity.Users, error) {
 		return nil, err
 	}
 
-	usersEntity := []entity.Users{}
+	usersEntity := []entity.UsersRes{}
 	for i := 0; i < len(users); i++ {
 		userentity := users[i].MapEntityFromModel()
 		usersEntity = append(usersEntity, *userentity)
@@ -79,7 +79,7 @@ func (ur *userRepository) FindAll() ([]entity.Users, error) {
 	return usersEntity, nil
 }
 
-func (rr *userRepository) FindOne(id string) (*entity.Users, error) {
+func (rr *userRepository) FindOne(id string) (*entity.UsersRes, error) {
 	var user models.UsersR
 
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -95,7 +95,7 @@ func (rr *userRepository) FindOne(id string) (*entity.Users, error) {
 	return user.MapEntityFromModel(), nil
 }
 
-func (rr *userRepository) UpdateOne(id string, userEntity *entity.Users) (*entity.Users, error) {
+func (rr *userRepository) UpdateOne(id string, userEntity *entity.Users) (*entity.UsersRes, error) {
 	user := models.Users{}
 	user.MapEntityToModel(userEntity)
 
@@ -117,9 +117,13 @@ func (rr *userRepository) UpdateOne(id string, userEntity *entity.Users) (*entit
 		return nil, fmt.Errorf("can not update the document")
 	}
 
-	userEntity.ID = id
+	userEntityRes := entity.UsersRes{
+		ID:       id,
+		UserName: userEntity.UserName,
+		Email:    userEntity.Email,
+	}
 
-	return userEntity, nil
+	return &userEntityRes, nil
 }
 
 func (rr *userRepository) DeleteOne(id string) (bool, error) {
@@ -141,7 +145,7 @@ func (rr *userRepository) DeleteOne(id string) (bool, error) {
 	return true, nil
 }
 
-func (rr *userRepository) GetUserByUserName(userName string) (*entity.Users, error) {
+func (rr *userRepository) GetUserByUserName(userName string) (*entity.UsersRes, error) {
 	var userModel models.UsersR
 	log.Println(userName)
 
@@ -153,7 +157,7 @@ func (rr *userRepository) GetUserByUserName(userName string) (*entity.Users, err
 	return userModel.MapEntityFromModel(), nil
 }
 
-func (rr *userRepository) GetUserByEmail(email string) (*entity.Users, error) {
+func (rr *userRepository) GetUserByEmail(email string) (*entity.UsersRes, error) {
 	var userModel models.UsersR
 	log.Println(email)
 	err := collection.FindOne(context.TODO(), bson.M{"email": email}).Decode(&userModel)

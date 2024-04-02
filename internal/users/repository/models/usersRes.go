@@ -8,8 +8,8 @@ type UsersR struct {
 	Email    string `bson:"email"`
 }
 
-func (model *UsersR) MapEntityFromModel() *entity.Users {
-	return &entity.Users{
+func (model *UsersR) MapEntityFromModel() *entity.UsersRes {
+	return &entity.UsersRes{
 		ID:       model.ID,
 		UserName: model.UserName,
 		Email:    model.Email,

@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/StephanSuarez/chat-rooms-users-ms/cmd/api"
+	"github.com/StephanSuarez/chat-rooms-users-ms/cmd"
 
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 )
 
-var app *api.App
+var app *cmd.App
 
 func init() {
 	fmt.Println("creating app")
-	app = api.NewApp()
+	app = cmd.NewApp()
 	// app.Start()
 	fmt.Println("app created")
 

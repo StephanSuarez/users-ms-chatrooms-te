@@ -1,10 +1,12 @@
-package api
+package cmd
 
 import (
-	// "fmt"
+	"fmt"
+	"log"
 
 	"github.com/StephanSuarez/chat-rooms-users-ms/internal/common/config"
 	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/http"
+	"github.com/gin-gonic/gin"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -13,6 +15,7 @@ type App struct {
 	Env      *config.Env
 	DbConn   *mongo.Database
 	UsersDep *http.UsersDependencies
+	Router   *gin.Engine
 }
 
 func NewApp() *App {
@@ -34,13 +37,23 @@ func NewApp() *App {
 
 	app.UsersDep = http.NewUsersDependencies(app.DbConn)
 
-	http.SubcribersHandlers(app.UsersDep)
+	app.Router = gin.Default()
 
 	return app
 }
 
-// func (app *App) Start() {
-// 	addr := fmt.Sprintf("http://localhost:%s", app.Env.ServerAddress)
-// 	log.Printf("Server is running on %s", addr)
-// 	app.Router.Run(app.Env.PortServer)
-// }
+func (app *App) Start() {
+	go func() {
+		http.SubcribersHandlers(app.UsersDep)
+	}()
+
+	addr := fmt.Sprintf("%s:%s", app.Env.IPAddress, app.Env.ServerAddress)
+	log.Printf("Server is running on: %s", addr)
+
+	http.Routes(app.Router, app.UsersDep)
+
+	err := app.Router.Run(app.Env.PortServer)
+	if err != nil {
+		log.Fatalf("error starting server: %v", err)
+	}
+}
