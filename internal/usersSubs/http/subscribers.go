@@ -12,22 +12,23 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var projectIDSub string
+var projectID string
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
-	projectIDSub = os.Getenv("PROJECT_ID")
+	projectID = os.Getenv("PROJECT_ID")
 }
 
-func createUserSubs(w io.Writer, UsersDep *UsersDependencies) error {
-	subID := "create-user-sub"
+func addRoomToList(w io.Writer, UserDep *UsersDependencies) error {
+	subID := "add-user-to-room-sub"
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectIDSub)
+	client, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("pubsub.NewClient: %w", err)
 	}
+
 	defer client.Close()
 
 	sub := client.Subscription(subID)
@@ -35,16 +36,13 @@ func createUserSubs(w io.Writer, UsersDep *UsersDependencies) error {
 	var received int32
 	err = sub.Receive(ctx, func(_ context.Context, msg *pubsub.Message) {
 		fmt.Fprintf(w, "Got message: %q\n", string(msg.Data))
+		data := string(msg.Data)
+		if err := UserDep.uh.addRoomToList(data); err != nil {
+			log.Println(err)
+		} else {
+			log.Println("roon added to user list successfully")
+		}
 		atomic.AddInt32(&received, 1)
-
-		// CALL HANDER MS
-		// answerData := UsersDep.uh.CreateUser(msg.Data)
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-
-		// fmt.Println(answerData)
-
 		msg.Ack()
 	})
 
@@ -57,13 +55,14 @@ func createUserSubs(w io.Writer, UsersDep *UsersDependencies) error {
 	return nil
 }
 
-func deleteUserSubs(w io.Writer, UsersDep *UsersDependencies) error {
-	subID := "delete-user-sub"
+func removeRoomToList(w io.Writer, UserDep *UsersDependencies) error {
+	subID := "remove-user-in-room-sub"
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectIDSub)
+	client, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("pubsub.NewClient: %w", err)
 	}
+
 	defer client.Close()
 
 	sub := client.Subscription(subID)
@@ -71,10 +70,13 @@ func deleteUserSubs(w io.Writer, UsersDep *UsersDependencies) error {
 	var received int32
 	err = sub.Receive(ctx, func(_ context.Context, msg *pubsub.Message) {
 		fmt.Fprintf(w, "Got message: %q\n", string(msg.Data))
+		data := string(msg.Data)
+		if err := UserDep.uh.removeRoomInList(data); err != nil {
+			log.Println(err)
+		} else {
+			log.Println("roon removed to user list successfully")
+		}
 		atomic.AddInt32(&received, 1)
-
-		// CALL HANDER MS
-
 		msg.Ack()
 	})
 

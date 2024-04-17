@@ -5,17 +5,20 @@ import (
 	"log"
 
 	"github.com/StephanSuarez/chat-rooms-users-ms/internal/common/config"
+	"github.com/StephanSuarez/chat-rooms-users-ms/internal/common/middleware"
 	"github.com/StephanSuarez/chat-rooms-users-ms/internal/users/http"
+	userSubs "github.com/StephanSuarez/chat-rooms-users-ms/internal/usersSubs/http"
 	"github.com/gin-gonic/gin"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type App struct {
-	Env      *config.Env
-	DbConn   *mongo.Database
-	UsersDep *http.UsersDependencies
-	Router   *gin.Engine
+	Env        *config.Env
+	DbConn     *mongo.Database
+	UsersDep   *http.UsersDependencies
+	UserSubDep *userSubs.UsersDependencies
+	Router     *gin.Engine
 }
 
 func NewApp() *App {
@@ -36,15 +39,17 @@ func NewApp() *App {
 	app.DbConn = config.GetDBInstance(dbenv)
 
 	app.UsersDep = http.NewUsersDependencies(app.DbConn)
+	app.UserSubDep = userSubs.NewUsersSubDependencies(app.DbConn)
 
 	app.Router = gin.Default()
+	app.Router.Use(middleware.CorsMiddleware())
 
 	return app
 }
 
 func (app *App) Start() {
 	go func() {
-		http.SubcribersHandlers(app.UsersDep)
+		userSubs.ListeningSubs(app.UserSubDep)
 	}()
 
 	addr := fmt.Sprintf("%s:%s", app.Env.IPAddress, app.Env.ServerAddress)
