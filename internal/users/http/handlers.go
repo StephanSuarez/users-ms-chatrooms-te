@@ -62,7 +62,7 @@ func (uh *userHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	_, err := uh.us.CreateUser(userDto.MapEntityFromDto())
+	userID, err := uh.us.CreateUser(userDto.MapEntityFromDto())
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -70,9 +70,13 @@ func (uh *userHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"body": userDto,
-	})
+	userDtoRes := dtos.UsersResDTO{
+		ID:       userID,
+		UserName: userDto.UserName,
+		Email:    userDto.Email,
+	}
+
+	ctx.JSON(http.StatusOK, userDtoRes)
 }
 
 func (uh *userHandler) GetUsers(ctx *gin.Context) {

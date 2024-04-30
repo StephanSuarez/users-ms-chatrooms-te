@@ -7,7 +7,7 @@ import (
 type UsersResDTO struct {
 	ID       string `json:"id"`
 	UserName string `json:"userName"`
-	Email    string `json:"password"`
+	Email    string `json:"email"`
 }
 
 func (urd *UsersResDTO) MapEntityToDto(userEntity *entity.UsersRes) {
